@@ -1,0 +1,42 @@
+{
+  "video_script": [
+    {"goto": "/", "wait_ms": 2500, "caption": "Dropfront Live: drops that sell out exactly, never oversell"},
+    {"click": "a:has-text('See a live drop')", "wait_ms": 2200, "caption": "A live drop with a real-time stock counter"},
+    {"scroll": 300, "wait_ms": 1200},
+    {"click": "button:has-text('Buy now')", "wait_ms": 2500, "caption": "One atomic transaction secures a unit"},
+    {"goto": "/dashboard", "wait_ms": 2500, "caption": "Seller dashboard: revenue, sell-through, audit trail"},
+    {"click": "button:has-text('Run stress test')", "wait_ms": 4800, "caption": "Thousands of concurrent buyers race the drop"},
+    {"scroll": 520, "wait_ms": 2200, "caption": "Receipt: sold equals inventory, oversold is zero"},
+    {"goto": "/dashboard/new", "wait_ms": 2000, "caption": "Launch a new drop in under a minute"},
+    {"fill": "input[name='title']", "value": "Neon Court Hi-Top", "wait_ms": 600},
+    {"fill": "input[name='creator']", "value": "Kairo Athletics", "wait_ms": 600},
+    {"goto": "/settings", "wait_ms": 2200, "caption": "Bring your own Aurora DSQL, or run the demo backend"}
+  ],
+  "screenshot_shots": [
+    {"path": "/", "description": "Hero landing with the never-oversell pitch and the stress-test receipt card", "wait_ms": 2500},
+    {"path": "/dashboard", "description": "Seller dashboard with seeded revenue, sell-through stats, the stress test panel, and a populated audit trail", "wait_ms": 2200},
+    {"path": "/drops/aurora-runner-og", "description": "Live drop page with countdown, real-time remaining counter, and the buy button", "wait_ms": 2000},
+    {"path": "/settings", "description": "Settings panel for connecting your own Aurora DSQL connection string", "wait_ms": 1500}
+  ],
+  "submission": {
+    "inspiration": "We kept seeing the same story in creator commerce: a limited drop goes viral, the inventory counter lags behind the stampede, and the brand ends up overselling and sending apology refunds. Almost every flash-sale guide answers this with a Redis counter, Lua scripts, and a background job to reconcile the cache against the order table. We wanted to prove that overselling is not an inventory problem, it is a consistency problem, and that a strongly consistent database can be the entire correctness boundary with none of that fragile glue.",
+    "what_it_does": "Dropfront Live lets a creator or brand launch a limited-stock product drop with an exact quantity and a go-live countdown. Fans land on a fast drop page with a live remaining-stock counter and buy a unit through a single atomic transaction that conditionally decrements stock and writes the order together. The seller dashboard shows live revenue, sell-through, and a per-unit audit trail, plus a one-click Stress Test that fires thousands of concurrent buyers at a live drop and renders a real-time race ending on a hard receipt: units sold equals inventory exactly, oversold equals zero.",
+    "how_we_built_it": "We built it on Next.js 14 with the App Router, TypeScript, Tailwind, and hand-rolled shadcn-style components. The correctness lives in one tiny transaction against Amazon Aurora DSQL over the PostgreSQL wire protocol: a conditional UPDATE that decrements remaining only while it is above zero, then an order insert, with bounded retries on optimistic-concurrency aborts. The same store interface has an in-memory backend so the app runs with zero config, and judges can paste their own DSQL connection string in Settings to flip to live infrastructure per request.",
+    "challenges": "The first hard problem was making rejections fast and clean instead of ugly. Aurora DSQL uses optimistic concurrency, so heavy contention on one inventory row triggers serialization aborts; we added a bounded retry-and-reject path so a real winner is never wrongly turned away and losers fail in milliseconds. The second was proving the guarantee visually: we run thousands of concurrent attempts through the exact buy path a fan uses, then play the results back as a live tile race so the proof is honest, not a mockup.",
+    "accomplishments": "We are proud that the demo is genuinely true: every tile in the stress test is a real purchase attempt through the same code path, and sold can never exceed inventory because the database enforces it. We also kept the whole thing shippable, it runs with no credentials in demo mode, builds in a single Docker image, and gracefully upgrades to live Aurora DSQL with one connection string.",
+    "what_we_learned": "We learned how much accidental complexity the standard flash-sale architecture carries, and how much of it disappears when the database is strongly consistent. We also got a much sharper feel for designing around optimistic concurrency: keeping the transaction tiny, making the conditional decrement the single guard, and treating retries as a first-class part of the contention path rather than an afterthought.",
+    "whats_next": "Next we want to add Stripe sandbox checkout so the order carries a real payment intent, verified one-per-fan enforcement with Clerk, a waitlist-to-claim queue for sold-out drops, webhooks so sellers can wire drops into their existing fulfillment, and a multi-region always-on demo that keeps a drop consistent even if one region goes dark.",
+    "built_with": [
+      "next.js-14",
+      "typescript",
+      "tailwindcss",
+      "shadcn-style-ui",
+      "amazon-aurora-dsql",
+      "postgresql",
+      "node-postgres",
+      "vercel",
+      "docker"
+    ],
+    "category_hint": "Database-as-the-hero full-stack app on Aurora DSQL"
+  }
+}
