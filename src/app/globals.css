@@ -1,0 +1,70 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 24% 6%;
+    --foreground: 220 20% 96%;
+
+    --card: 240 20% 9%;
+    --card-foreground: 220 20% 96%;
+
+    --primary: 158 84% 45%;
+    --primary-foreground: 160 60% 6%;
+
+    --secondary: 245 30% 16%;
+    --secondary-foreground: 220 20% 92%;
+
+    --muted: 240 14% 16%;
+    --muted-foreground: 230 12% 62%;
+
+    --accent: 268 84% 62%;
+    --accent-foreground: 270 50% 98%;
+
+    --destructive: 0 72% 56%;
+    --destructive-foreground: 0 0% 98%;
+
+    --success: 152 76% 44%;
+    --success-foreground: 152 60% 8%;
+
+    --border: 240 16% 20%;
+    --input: 240 16% 18%;
+    --ring: 158 84% 45%;
+
+    --radius: 0.85rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+.bg-grid {
+  background-image: radial-gradient(
+    hsl(var(--border) / 0.7) 1px,
+    transparent 1px
+  );
+  background-size: 28px 28px;
+}
+
+.bg-aurora {
+  background:
+    radial-gradient(60% 60% at 20% 10%, hsl(158 84% 45% / 0.16), transparent 60%),
+    radial-gradient(50% 50% at 90% 0%, hsl(268 84% 62% / 0.18), transparent 55%),
+    radial-gradient(70% 60% at 50% 100%, hsl(200 90% 50% / 0.1), transparent 60%);
+}
+
+.tabular {
+  font-variant-numeric: tabular-nums;
+}
+
+::selection {
+  background: hsl(var(--primary) / 0.3);
+}
